@@ -5,8 +5,8 @@ class CustomCheckbox extends StatefulWidget {
   final Color color;
   final Function toggleChange;
   final int duration;
-  CustomCheckbox(
-      {required this.isChecked,
+  const CustomCheckbox(
+      {super.key, required this.isChecked,
       required this.color,
       required this.toggleChange,
       required this.duration});
@@ -62,27 +62,25 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
   @override
   void initState() {
     super.initState();
-    // var (durationShape, durationIcon) = setDuration();
     var (durationShape, durationIcon) = (0, 0);
 
     _controller = AnimationController(
       vsync: this,
       reverseDuration: Duration(milliseconds: durationShape),
-      duration: Duration(milliseconds: durationShape), // Длительность анимации
+      duration: Duration(milliseconds: durationShape), 
     )..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           _controllerIcon.forward();
         }
       });
     _painColorDouble = Tween<double>(
-      begin: 1.0, // Начальный масштаб
-      end: 0.0, // Конечный масштаб
+      begin: 1.0,
+      end: 0.0, 
     ).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Interval(0, 1),
         reverseCurve: Interval(0, 1),
-        // Эффект easeInOutBack
       ),
     );
 
@@ -120,11 +118,12 @@ class _AnimatedCheckboxState extends State<AnimatedCheckbox>
     _controller.reverseDuration = Duration(milliseconds: durationShape);
     _controllerIcon.duration = Duration(milliseconds: durationIcon);
     _controllerIcon.reverseDuration = Duration(milliseconds: durationIcon);
-    if (widget.isChecked ) {
+
+    if (widget.isChecked && _controller.status == AnimationStatus.dismissed) {
       _controller.forward();
     } else if (widget.isChecked == false ) {
       if(_controller.status == AnimationStatus.forward) {
-        _controller.reset();
+        _controller.reverse();
       }
       _controllerIcon.reverse();
     }
@@ -188,13 +187,7 @@ class CheckboxPainter extends CustomPainter {
       ..color = colorArg != null ? colorArg : color
       ..style = PaintingStyle.fill;
 
-    // Рисуем галочку внутри чекбокса с анимаци
-    // Рисуем галочку внутри чекбокса с анимацией увеличения размера в активном состоянии
-    final checkPaint = Paint()
-      ..color = Colors.white // Галочка всегда белая в активном состоянии
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2.0;
-
+    
     // Рисуем круглую обводку чекбокса
     canvas.drawCircle(Offset(midX, midY), radius, borderPaint);
 
@@ -205,6 +198,10 @@ class CheckboxPainter extends CustomPainter {
 
     if (scale == 0) {
       // Рисуем галочку внутри чекбокса с анимацией увеличения размера в активном состоянии
+      final checkPaint = Paint()
+      ..color = Colors.white 
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
 
       final path = Path();
       path.moveTo(midX - (midX / 2) * iconDouble, midY + 1 * iconDouble);
